@@ -1,0 +1,17 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+
+@using MobileRobotAgent.UI
+@using MobileRobotAgent.UI.Components
+@using MobileRobotAgent.UI.Services.Abstract
+
+@using MudBlazor
+
+@inject ITokenService TokenService
+@inject ISmsProcessingService SmsProcessingService
+@inject ISnackbar Snackbar

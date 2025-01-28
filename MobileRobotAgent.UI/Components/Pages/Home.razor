@@ -1,0 +1,231 @@
+﻿@page "/"
+
+<div class="main-container">
+    <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center keyboard-aware" Style="height: 100vh;">
+        <MudPaper Elevation="3" Class="pa-8 rounded-lg" Style="width: 100%; background: linear-gradient(180deg, var(--mud-palette-white) 0%, #f5f5f5 100%);">
+            @if (_isLoading)
+            {
+                <MudStack AlignItems="AlignItems.Center" Spacing="4">
+                    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+                    <MudText Typo="Typo.h6" Color="Color.Primary">Yükleniyor...</MudText>
+                </MudStack>
+            }
+            else
+            {
+                <MudStack Spacing="6">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Message"
+                                Color="Color.Primary"
+                                Size="Size.Large"
+                                Style="font-size: 48px;" />
+                        <MudText Typo="Typo.h4"
+                                Color="Color.Dark"
+                                Align="Align.Center"
+                                Style="font-weight: 500;">
+                            Insur Mobile
+                        </MudText>
+                    </MudStack>
+
+                    @if (string.IsNullOrEmpty(_currentToken))
+                    {
+                        <MudPaper Elevation="0" Class="pa-4">
+                            <MudStack Spacing="4">
+                                <MudText Typo="Typo.body1"
+                                        Color="Color.Default"
+                                        Align="Align.Center">
+                                    Lütfen sms dinleme servisini başlatmak için InsurUp'tan aldığınız kodu giriniz.
+                                </MudText>
+
+                                <MudTextField @bind-Value="_newToken"
+                                            Label="Kod"
+                                            Variant="Variant.Text"
+                                            Class="mt-4"
+                                            Immediate="true"
+                                            OnKeyDown="@OnKeyDown"/>
+
+                                @if (!string.IsNullOrEmpty(_errorMessage))
+                                {
+                                    <MudAlert Severity="Severity.Error"
+                                             Variant="Variant.Filled"
+                                             Class="mt-2">
+                                        @_errorMessage
+                                    </MudAlert>
+                                }
+
+                                <MudButton Color="Color.Primary"
+                                          Variant="Variant.Filled"
+                                          FullWidth="true"
+                                          OnClick="SaveTokenAsync"
+                                          Class="mt-4 py-2">
+                                    Başlat
+                                </MudButton>
+                            </MudStack>
+                        </MudPaper>
+                    }
+                    else
+                    {
+                        <MudPaper Elevation="0" Class="pa-4">
+                            <MudStack Spacing="4">
+                                <MudAlert Severity="@(_isListening ? Severity.Success : Severity.Warning)"
+                                         Variant="Variant.Filled"
+                                         Dense="true"
+                                         Class="rounded-lg">
+                                    @(_isListening ? "SMS dinleme servisi çalışıyor" : "SMS dinleme servisi duraklatıldı")
+                                </MudAlert>
+
+                                <MudStack Spacing="2" Class="mt-4">
+                                    @if (_isListening)
+                                    {
+                                        <MudText>
+                                            Robot ürünlerinin otomatik sms alabilmesi için uygulamayı arka planda çalışır bırakmanız ve kapatmamanız gerekmektedir.
+                                        </MudText>
+
+                                        <MudButton Variant="Variant.Outlined"
+                                                  Color="Color.Warning"
+                                                  FullWidth="true"
+                                                  OnClick="StopListeningAsync"
+                                                  Class="py-2">
+                                            Duraklat
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudText>
+                                            Robot ürünlerinin otomatik sms alabilmesi için uygulamayı arka planda çalışır bırakmanız ve kapatmamanız gerekmektedir.
+                                        </MudText>
+
+                                        <MudButton Variant="Variant.Outlined"
+                                                  Color="Color.Success"
+                                                  FullWidth="true"
+                                                  OnClick="StartListeningAsync"
+                                                  Class="py-2">
+                                            Başlat
+                                        </MudButton>
+                                    }
+
+                                    <MudButton Variant="Variant.Outlined"
+                                              Color="Color.Error"
+                                              FullWidth="true"
+                                              OnClick="RemoveTokenAsync"
+                                              Class="py-2">
+                                        Kodu Sil
+                                    </MudButton>
+                                </MudStack>
+                            </MudStack>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+        </MudPaper>
+    </MudContainer>
+</div>
+
+@code {
+    private string _currentToken;
+    private string _newToken;
+    private string _errorMessage;
+    private bool _isLoading = true;
+    private bool _isListening = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _currentToken = await TokenService.GetTokenAsync();
+            if (!string.IsNullOrEmpty(_currentToken))
+            {
+                await StartListeningAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            Snackbar.Add("Bir hata oluştu: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            if (!string.IsNullOrWhiteSpace(_newToken))
+            {
+                await SaveTokenAsync();
+            }
+        }
+    }
+
+    private async Task SaveTokenAsync()
+    {
+        try
+        {
+            _errorMessage = string.Empty;
+
+            if (!TokenService.ValidateToken(_newToken))
+            {
+                _errorMessage = "Lütfen yanlızca InsurUp'tan aldığınız kodu giriniz.";
+                return;
+            }
+
+            await TokenService.SaveTokenAsync(_newToken);
+            _currentToken = _newToken;
+            _newToken = string.Empty;
+
+            await StartListeningAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task StartListeningAsync()
+    {
+        try
+        {
+            await SmsProcessingService.StartProcessingAsync();
+            _isListening = true;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            Snackbar.Add("SMS dinleme başlatılamadı: " + ex.Message, Severity.Error);
+            throw;
+        }
+    }
+
+    private async Task StopListeningAsync()
+    {
+        try
+        {
+            await SmsProcessingService.StopProcessingAsync();
+            _isListening = false;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task RemoveTokenAsync()
+    {
+        try
+        {
+            await StopListeningAsync();
+            await TokenService.ClearTokenAsync();
+            _currentToken = null;
+            _isListening = false;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

@@ -1,0 +1,42 @@
+﻿.main-container {
+    background-color: var(--mud-palette-background);
+    min-height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+}
+
+.keyboard-aware {
+    position: relative;
+    padding-bottom: env(keyboard-inset-height, 0px);
+    transition: all 0.3s ease;
+}
+
+.mud-button {
+    text-transform: none;
+    font-weight: 500;
+}
+
+.mud-paper {
+    border-radius: 12px;
+}
+
+.mud-alert {
+    border-radius: 8px;
+}
+
+/* Android için klavye ayarı */
+@media screen and (max-height: 450px) {
+    .keyboard-aware {
+        margin-top: -30vh;
+    }
+}
+
+/* iOS için klavye ayarı */
+@supports (-webkit-touch-callout: none) {
+    .keyboard-aware {
+        padding-bottom: 0;
+    }
+}
