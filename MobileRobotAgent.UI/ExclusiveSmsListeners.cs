@@ -11,8 +11,6 @@ public static class ExclusiveSmsListeners
 {
     public static readonly Dictionary<string, int> ValidSenders = new()
     {
-        { "+905358728627", 42 },
-        { "+905303271409", 42 },
         { "ALLIANZ", 45 },
         { "ZURICH", 18 },
         { "ZURICH.", 18 },
