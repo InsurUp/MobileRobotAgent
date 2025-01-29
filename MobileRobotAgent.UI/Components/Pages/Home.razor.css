@@ -1,42 +1,32 @@
 ﻿.main-container {
-    background-color: var(--mud-palette-background);
-    min-height: 100vh;
-    width: 100vw;
     position: fixed;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
     overflow-y: auto;
 }
 
-.keyboard-aware {
-    position: relative;
-    padding-bottom: env(keyboard-inset-height, 0px);
-    transition: all 0.3s ease;
+.content-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-.mud-button {
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+::deep .mud-button {
     text-transform: none;
     font-weight: 500;
 }
 
-.mud-paper {
-    border-radius: 12px;
-}
-
-.mud-alert {
+::deep .mud-alert {
     border-radius: 8px;
-}
-
-/* Android için klavye ayarı */
-@media screen and (max-height: 450px) {
-    .keyboard-aware {
-        margin-top: -30vh;
-    }
-}
-
-/* iOS için klavye ayarı */
-@supports (-webkit-touch-callout: none) {
-    .keyboard-aware {
-        padding-bottom: 0;
-    }
 }
