@@ -1,6 +1,6 @@
 ﻿@page "/"
-@using ZXing
-@using ZXing.Mobile
+@using ZXing.Net.Maui
+@using ZXing.Net.Maui.Controls
 
 <div class="main-container">
     <div class="content-wrapper">
@@ -250,25 +250,23 @@
                 }
             }
 
-            var options = new MobileBarcodeScanningOptions
-                {
-                    PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE },
-                    TryHarder = true
-                };
-
-            var scanner = new MobileBarcodeScanner
-                {
-                    TopText = "QR Kodu kameraya yaklaştırın",
-                    BottomText = "Tarama otomatik olarak yapılacaktır"
-                };
-
-            var result = await scanner.Scan(options);
-
-            if (result != null)
+            var cameraBarcodeReaderView = new CameraBarcodeReaderView
             {
-                _newToken = result.Text;
-                await SaveTokenAsync();
-            }
+                Options = new BarcodeReaderOptions
+                {
+                    Formats = BarcodeFormat.QrCode
+                }
+            };
+
+            cameraBarcodeReaderView.BarcodesDetected += async (sender, args) =>
+            {
+                var result = args.Results.FirstOrDefault();
+                if (result != null)
+                {
+                    _newToken = result.Value;
+                    await SaveTokenAsync();
+                }
+            };
         }
         catch (Exception ex)
         {
