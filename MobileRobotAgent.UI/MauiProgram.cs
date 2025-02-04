@@ -24,7 +24,7 @@ public static class MauiProgram
         {
             var client = new HttpClient
             {
-                BaseAddress = new Uri("https://spmw.sigortapro.com/")
+                BaseAddress = new Uri("https://prod-spmw.sigortapro.com/")
             };
 
             client.DefaultRequestHeaders.Accept.Add(
