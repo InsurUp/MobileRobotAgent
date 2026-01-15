@@ -25,5 +25,6 @@ public static class ExclusiveSmsListeners
         { "ANADOLUSIG", 7 },
         { ".AXA.", 95 },
         { "EUREKO A.S.", 2 },
+        { "SENCARD", 27 }
     };
 }
