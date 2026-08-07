@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFrameworks>net9.0-android</TargetFrameworks>
@@ -10,7 +10,7 @@
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
     <Nullable>enable</Nullable>
 
-    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+    <RuntimeIdentifiers>android-arm;android-arm64</RuntimeIdentifiers>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
 
